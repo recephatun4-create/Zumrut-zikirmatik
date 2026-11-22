@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#062b1b">
+<title>Zümrüt Zikirmatik</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#03170f;color:#f8d879;font-family:Georgia,'Times New Roman',serif}body{display:flex;justify-content:center;padding:0 8px 24px}.app{width:min(100%,520px);margin:0 auto}.art{position:relative;width:100%;aspect-ratio:3/4;overflow:hidden;box-shadow:0 0 30px #b58a2d55}.art img{display:block;width:100%;height:100%;object-fit:fill;user-select:none;-webkit-user-drag:none}.count{position:absolute;left:50%;top:31.5%;transform:translate(-50%,-50%);width:25%;height:12%;display:flex;align-items:center;justify-content:center;color:#ffd76b;font-family:Arial,sans-serif;font-size:clamp(44px,14vw,86px);font-weight:800;letter-spacing:2px;text-shadow:0 0 5px #fff2a0,0 0 14px #ffb900,2px 3px 2px #5d2600;pointer-events:none;font-variant-numeric:tabular-nums}.hit{position:absolute;border:0;background:transparent;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;border-radius:50%;outline:none}.hit:active{background:#ffe9a522;box-shadow:0 0 25px #ffdc6a88 inset}.reset{left:15%;top:70%;width:20%;height:14%}.plus{left:37%;top:69%;width:26%;height:16%}.settings{left:65%;top:70%;width:21%;height:14%}.hit:focus-visible{outline:2px solid #ffe39a}.below{padding:14px 10px;text-align:center;color:#f4d47c;font:14px Arial,sans-serif}.below strong{color:#fff0ae}.veil{position:fixed;inset:0;background:#000b;display:none;align-items:center;justify-content:center;padding:18px;z-index:5}.veil.open{display:flex}.panel{width:min(100%,360px);border:2px solid #d6ad50;border-radius:20px;padding:22px;background:linear-gradient(145deg,#06452b,#031c12);box-shadow:0 0 35px #d6ad5066;color:#ffe6a0}.panel h2{margin:0 0 18px;text-align:center;color:#ffdc79}.panel label{display:block;margin:13px 0 6px}.panel select,.panel button{width:100%;padding:12px;border-radius:10px;border:1px solid #b68b36;background:#092d1d;color:#ffe6a0;font-size:16px}.panel button{margin-top:18px;background:linear-gradient(#d9b65d,#8c5e18);color:#1a170b;font-weight:bold}.toggle{display:flex;align-items:center;gap:10px;margin-top:15px}.toggle input{width:20px;height:20px;accent-color:#d9b65d}
+</style>
+</head>
+<body>
+<main class="app">
+ <div class="art" id="art">
+  <img src="tasarim.png" alt="Zümrüt yeşili ve altın işlemeli cami manzaralı zikirmatik tasarımı">
+  <div class="count" id="count" aria-live="polite">0</div>
+  <button class="hit reset" id="reset" aria-label="Sayacı sıfırla" title="Sıfırla"></button>
+  <button class="hit plus" id="plus" aria-label="Sayacı artır" title="Sayacı artır"></button>
+  <button class="hit settings" id="openSettings" aria-label="Ayarları aç" title="Ayarlar"></button>
+ </div>
+ <div class="below">Bugünkü toplam zikir: <strong id="today">0</strong> &nbsp;|&nbsp; Hedef: <strong id="goalText">33</strong></div>
+</main>
+<div class="veil" id="veil" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+ <section class="panel"><h2 id="settingsTitle">Zümrüt Zikirmatik Ayarları</h2>
+  <label for="zikr">Zikir seç</label><select id="zikr"><option>Subhanallah</option><option>Elhamdülillah</option><option>Allahu Ekber</option><option>La ilahe illallah</option><option>Estağfirullah</option><option>Salavat</option><option>La havle ve la kuvvete illa billah</option></select>
+  <label for="target">Günlük hedef</label><select id="target"><option value="33">33</option><option value="99">99</option><option value="100">100</option><option value="500">500</option><option value="1000">1000</option><option value="0">Hedef yok</option></select>
+  <label class="toggle"><input type="checkbox" id="vibration" checked> Titreşim</label>
+  <button id="closeSettings">Kaydet ve kapat</button>
+ </section>
+</div>
+<script>
+(()=>{
+ const $=id=>document.getElementById(id);const dateKey=()=>new Date().toLocaleDateString('tr-TR');
+ let s={count:0,today:0,date:dateKey(),zikr:'Subhanallah',target:33,vibration:true};
+ try{const old=JSON.parse(localStorage.getItem('zumrut-zikirmatik-v2'));if(old)s={...s,...old}}catch(e){}
+ if(s.date!==dateKey()){s.today=0;s.date=dateKey()}
+ function save(){localStorage.setItem('zumrut-zikirmatik-v2',JSON.stringify(s));render()}
+ function render(){$('count').textContent=s.count;$('today').textContent=s.today;$('goalText').textContent=s.target||'Yok';$('zikr').value=s.zikr;$('target').value=String(s.target);$('vibration').checked=s.vibration}
+ $('plus').addEventListener('click',()=>{s.count++;s.today++;if(s.vibration&&navigator.vibrate)navigator.vibrate(35);save()});
+ $('reset').addEventListener('click',()=>{if(confirm('Sayaç sıfırlansın mı?')){s.count=0;save()}});
+ $('openSettings').addEventListener('click',()=>{$('veil').classList.add('open')});
+ $('closeSettings').addEventListener('click',()=>{s.zikr=$('zikr').value;s.target=Number($('target').value);s.vibration=$('vibration').checked;save();$('veil').classList.remove('open')});
+ $('veil').addEventListener('click',e=>{if(e.target===$('veil'))$('veil').classList.remove('open')});
+ render();
+})();
+</script>
+</body></html>
